@@ -1,0 +1,265 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Detalhes da Conversa - JusBot{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.conversations') }}">Conversas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalhes da Conversa</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0 text-gray-800">Detalhes da Conversa</h1>
+            <div>
+                <a href="{{ url_for('admin.conversations') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Voltar
+                </a>
+                <button class="btn btn-primary">
+                    <i class="fas fa-file-export me-1"></i>Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informações do Cliente -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informações do Cliente</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>ID da Conversa:</strong>
+                    <p>{{ conversation.id if conversation else '1' }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Número do WhatsApp:</strong>
+                    <p>{{ conversation.user_id if conversation else 'whatsapp:+5511999999999' }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Nome:</strong>
+                    <p>
+                        {% if conversation and conversation.user_data and conversation.user_data.nome %}
+                            {{ conversation.user_data.nome }}
+                        {% else %}
+                            João Silva
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <strong>Início da Conversa:</strong>
+                    <p>
+                        {% if conversation and conversation.created_at %}
+                            {{ conversation.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        {% else %}
+                            02/04/2025 14:23
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <strong>Status:</strong>
+                    <p>
+                        {% if conversation and conversation.status %}
+                            {% if conversation.status == 'active' %}
+                                <span class="badge bg-primary">Em Andamento</span>
+                            {% elif conversation.status == 'closed' %}
+                                <span class="badge bg-success">Concluída</span>
+                            {% else %}
+                                <span class="badge bg-warning">Abandonada</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-success">Concluída</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dados Coletados -->
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Dados Coletados</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if conversation and conversation.user_data %}
+                                {% for key, value in conversation.user_data.items() %}
+                                    <tr>
+                                        <td>{{ key }}</td>
+                                        <td>{{ value }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td>Nome</td>
+                                    <td>João Silva</td>
+                                </tr>
+                                <tr>
+                                    <td>Data de Admissão</td>
+                                    <td>15/01/2020</td>
+                                </tr>
+                                <tr>
+                                    <td>Data de Demissão</td>
+                                    <td>10/03/2025</td>
+                                </tr>
+                                <tr>
+                                    <td>Cargo</td>
+                                    <td>Auxiliar Administrativo</td>
+                                </tr>
+                                <tr>
+                                    <td>Salário</td>
+                                    <td>R$ 2.800,00</td>
+                                </tr>
+                                <tr>
+                                    <td>Motivo da Demissão</td>
+                                    <td>Sem justa causa</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Mensagens -->
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Histórico de Mensagens</h6>
+            </div>
+            <div class="card-body">
+                <div class="chat-container">
+                    {% if conversation and conversation.messages %}
+                        {% for message in conversation.messages %}
+                            <div class="message {% if message.role == 'assistant' %}message-bot{% else %}message-user{% endif %}">
+                                <div class="message-header">
+                                    <strong>{{ 'JusBot' if message.role == 'assistant' else 'Cliente' }}</strong>
+                                    <small class="text-muted">{{ message.timestamp.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </div>
+                                <div class="message-content">
+                                    {{ message.content }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Mensagens de exemplo -->
+                        <div class="message message-bot">
+                            <div class="message-header">
+                                <strong>JusBot</strong>
+                                <small class="text-muted">02/04/2025 14:23</small>
+                            </div>
+                            <div class="message-content">
+                                Olá! Sou o JusBot, assistente virtual especializado em direito trabalhista. Como posso ajudar você hoje? Para começar, poderia me informar seu nome completo?
+                            </div>
+                        </div>
+                        <div class="message message-user">
+                            <div class="message-header">
+                                <strong>Cliente</strong>
+                                <small class="text-muted">02/04/2025 14:24</small>
+                            </div>
+                            <div class="message-content">
+                                Olá, meu nome é João Silva.
+                            </div>
+                        </div>
+                        <div class="message message-bot">
+                            <div class="message-header">
+                                <strong>JusBot</strong>
+                                <small class="text-muted">02/04/2025 14:24</small>
+                            </div>
+                            <div class="message-content">
+                                Obrigado, João. Para que eu possa entender melhor sua situação, poderia me contar qual problema você está enfrentando com seu empregador?
+                            </div>
+                        </div>
+                        <div class="message message-user">
+                            <div class="message-header">
+                                <strong>Cliente</strong>
+                                <small class="text-muted">02/04/2025 14:25</small>
+                            </div>
+                            <div class="message-content">
+                                Fui demitido sem justa causa há 3 semanas e não recebi todas as verbas rescisórias. Trabalhei na empresa por 5 anos e 2 meses.
+                            </div>
+                        </div>
+                        <div class="message message-bot">
+                            <div class="message-header">
+                                <strong>JusBot</strong>
+                                <small class="text-muted">02/04/2025 14:26</small>
+                            </div>
+                            <div class="message-content">
+                                Entendi, João. Isso é uma situação séria. Poderia me informar quando você foi admitido na empresa (data de início) e quando foi seu último dia de trabalho?
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Responder ao Cliente -->
+                <div class="mt-4">
+                    <h6 class="font-weight-bold">Responder ao Cliente</h6>
+                    <div class="input-group">
+                        <textarea class="form-control" rows="3" placeholder="Digite uma mensagem..."></textarea>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Enviar
+                        </button>
+                    </div>
+                    <small class="text-muted">Esta mensagem será enviada diretamente para o WhatsApp do cliente.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 10px;
+        background-color: #f8f9fc;
+        border-radius: 5px;
+    }
+    
+    .message {
+        margin-bottom: 15px;
+        padding: 10px 15px;
+        border-radius: 10px;
+        max-width: 80%;
+    }
+    
+    .message-bot {
+        background-color: #e3f2fd;
+        margin-right: auto;
+        border-bottom-left-radius: 0;
+    }
+    
+    .message-user {
+        background-color: #e8f5e9;
+        margin-left: auto;
+        border-bottom-right-radius: 0;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    
+    .message-content {
+        word-wrap: break-word;
+    }
+</style>
+{% endblock %}

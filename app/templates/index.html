@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JusBot - Assistente Virtual Trabalhista</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-balance-scale me-2"></i>JusBot
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('main.index') }}">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.about') }}">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.terms') }}">Termos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Assistência Jurídica Trabalhista ao seu alcance</h1>
+                    <p class="lead mb-4">
+                        O JusBot é um assistente virtual especializado em direito trabalhista, 
+                        pronto para te ajudar a entender seus direitos e coletar informações 
+                        para uma possível ação trabalhista.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                        <a href="https://wa.me/5514155238886?text=Olá,%20gostaria%20de%20tirar%20dúvidas%20trabalhistas" 
+                           class="btn btn-success btn-lg px-4 me-md-2">
+                            <i class="fab fa-whatsapp me-2"></i>Fale conosco pelo WhatsApp
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <img src="{{ url_for('static', filename='img/justice.svg') }}" alt="Justiça" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Como funciona</h2>
+                <p class="lead text-muted">Simples, rápido e eficiente</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-primary bg-gradient text-white mb-3">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h5 class="card-title">1. Inicie a conversa</h5>
+                            <p class="card-text">Clique no botão do WhatsApp e comece a conversar com o JusBot.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-primary bg-gradient text-white mb-3">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <h5 class="card-title">2. Responda às perguntas</h5>
+                            <p class="card-text">O JusBot fará perguntas específicas para entender sua situação trabalhista.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-primary bg-gradient text-white mb-3">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <h5 class="card-title">3. Receba orientação</h5>
+                            <p class="card-text">Com base nas suas respostas, receberá orientações sobre seus direitos trabalhistas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 order-lg-2">
+                    <h2 class="fw-bold mb-4">Por que usar o JusBot?</h2>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Atendimento 24/7</strong> - Tire suas dúvidas a qualquer momento
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Informações precisas</strong> - Baseadas na legislação trabalhista atual
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Fácil de usar</strong> - Basta conversar naturalmente pelo WhatsApp
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Confidencial</strong> - Suas informações são protegidas
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 order-lg-1">
+                    <img src="{{ url_for('static', filename='img/chat.svg') }}" alt="Chat" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>JusBot</h5>
+                    <p>Assistente Virtual Trabalhista</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item">
+                            <a href="{{ url_for('main.terms') }}" class="text-white">Termos de Uso</a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="{{ url_for('main.about') }}" class="text-white">Sobre</a>
+                        </li>
+                    </ul>
+                    <p class="mt-2 mb-0">&copy; 2025 JusBot. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

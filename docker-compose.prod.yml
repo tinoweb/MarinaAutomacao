@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: marina_bot_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - marina_network
+    # Em producao, nao expoe a porta do MySQL externamente por seguranca
+    # ports:
+    #   - "3306:3306"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marina_bot_app
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - FLASK_APP=app
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_PORT=3306
+      - WHATSAPP_SESSION=${WHATSAPP_SESSION:-marina_bot_session}
+    volumes:
+      - whatsapp_sessions:/app/whatsapp_sessions
+    depends_on:
+      - db
+    networks:
+      - marina_network
+    # Em producao, use um proxy reverso (nginx/traefik) apontando para porta 5000
+    ports:
+      - "5000:5000"
+
+volumes:
+  db_data:
+  whatsapp_sessions:
+
+networks:
+  marina_network:
+    driver: bridge

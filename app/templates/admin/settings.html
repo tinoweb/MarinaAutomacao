@@ -1,0 +1,170 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Configurações - JusBot{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="h3 mb-0 text-gray-800">Configurações</h1>
+        <p class="text-muted">Configurações do sistema e do chatbot</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post" action="{{ url_for('admin.settings') }}">
+            <!-- Configurações do Chatbot -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Configurações do Chatbot</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="bot_name" class="form-label">Nome do Chatbot</label>
+                        <input type="text" class="form-control" id="bot_name" name="bot_name" value="JusBot" required>
+                        <div class="form-text">Nome que será exibido nas mensagens enviadas pelo chatbot.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="welcome_message" class="form-label">Mensagem de Boas-vindas</label>
+                        <textarea class="form-control" id="welcome_message" name="welcome_message" rows="3" required>Olá! Sou o JusBot, assistente virtual especializado em direito trabalhista. Como posso ajudar você hoje? Para começar, poderia me informar seu nome completo?</textarea>
+                        <div class="form-text">Mensagem que será enviada quando um usuário iniciar uma conversa.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ai_model" class="form-label">Modelo de IA</label>
+                        <select class="form-select" id="ai_model" name="ai_model">
+                            <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo</option>
+                            <option value="gpt-4">GPT-4</option>
+                        </select>
+                        <div class="form-text">Modelo de IA utilizado para gerar respostas.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="temperature" class="form-label">Temperatura (Criatividade): <span id="temperature_value">0.7</span></label>
+                        <input type="range" class="form-range" id="temperature" name="temperature" min="0" max="1" step="0.1" value="0.7">
+                        <div class="form-text">Valores mais altos geram respostas mais criativas, valores mais baixos geram respostas mais precisas.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Configurações do Twilio -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Configurações do Twilio</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="twilio_account_sid" class="form-label">Account SID</label>
+                        <input type="text" class="form-control" id="twilio_account_sid" name="twilio_account_sid" value="" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="twilio_auth_token" class="form-label">Auth Token</label>
+                        <input type="password" class="form-control" id="twilio_auth_token" name="twilio_auth_token" value="" placeholder="Seu auth token aqui" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="twilio_phone_number" class="form-label">Número de Telefone</label>
+                        <input type="text" class="form-control" id="twilio_phone_number" name="twilio_phone_number" value="" placeholder="+55xx xxxxx-xxxx" required>
+                        <div class="form-text">Número de telefone do Twilio (com código do país).</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="twilio_whatsapp_number" class="form-label">Número do WhatsApp</label>
+                        <input type="text" class="form-control" id="twilio_whatsapp_number" name="twilio_whatsapp_number" value="" placeholder="whatsapp:+55xx xxxxx-xxxx" required>
+                        <div class="form-text">Número do WhatsApp do Twilio (com prefixo "whatsapp:").</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Configurações do OpenAI -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Configurações da OpenAI</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="openai_api_key" class="form-label">API Key</label>
+                        <input type="password" class="form-control" id="openai_api_key" name="openai_api_key" value="your_openai_api_key_here" required>
+                        <div class="form-text">Chave da API da OpenAI para acessar os modelos de IA.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
+                <button type="reset" class="btn btn-outline-secondary me-md-2">Restaurar Padrões</button>
+                <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Status do Sistema -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Status do Sistema</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Status do Webhook:</strong>
+                    <p><span class="badge bg-success">Ativo</span></p>
+                </div>
+                <div class="mb-3">
+                    <strong>Última Verificação:</strong>
+                    <p>02/04/2025 21:30</p>
+                </div>
+                <div class="mb-3">
+                    <strong>URL do Webhook:</strong>
+                    <p class="text-break">https://seu-dominio.ngrok.io/webhook</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Versão do Sistema:</strong>
+                    <p>1.0.0</p>
+                </div>
+                <div class="d-grid">
+                    <button class="btn btn-primary">Verificar Conexão</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ações Rápidas -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ações Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary">Limpar Cache</button>
+                    <button class="btn btn-outline-warning">Reiniciar Serviço</button>
+                    <button class="btn btn-outline-danger">Limpar Todas as Conversas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Atualiza o valor da temperatura em tempo real
+        const temperatureSlider = document.getElementById('temperature');
+        const temperatureValue = document.getElementById('temperature_value');
+        
+        temperatureSlider.addEventListener('input', function() {
+            temperatureValue.textContent = this.value;
+        });
+        
+        // Confirmação para ações perigosas
+        const dangerousButtons = document.querySelectorAll('.btn-outline-danger');
+        dangerousButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Esta ação é irreversível. Tem certeza que deseja continuar?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
