@@ -38,7 +38,7 @@ class WhatsAppAPIService:
         session = session_name or self.session_name
         url = f"{self.server_url}/api/{session}/{self.secret_key}/generate-token"
         try:
-            resp = requests.get(url, timeout=15)
+            resp = requests.post(url, timeout=15)
             print(f"[WPP] generate-token status={resp.status_code} url={url}")
             print(f"[WPP] generate-token body={resp.text[:300]}")
             resp.raise_for_status()
