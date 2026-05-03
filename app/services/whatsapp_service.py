@@ -1,95 +1,163 @@
 import os
-import threading
-from WPP_Whatsapp import Create
-from app.models.chat_model import ChatSession
-from app.models.ai_model import get_ai_response
+import requests
+from app.models.whatsapp_model import WhatsAppConfig
 
 
-class WhatsAppBotService:
+class WhatsAppAPIService:
     """
-    Servico de automacao do WhatsApp usando WPP-Whatsapp (API nao oficial).
-    Roda em uma thread separada para nao bloquear o servidor Flask.
+    Serviço de comunicação com o WPP Connect Server via REST API.
+    O servidor WPP Connect roda como container Docker separado (:21465)
+    e gerencia a sessão/QR code do WhatsApp Web.
     """
 
-    def __init__(self, session_name=None):
-        self.session_name = session_name or os.getenv("WHATSAPP_SESSION", "marina_bot")
-        self.client = None
-        self.thread = None
-        self.running = False
+    def __init__(self):
+        self.server_url = os.getenv('WPP_SERVER_URL', 'http://wppconnect:21465')
+        self.secret_key = os.getenv('WPP_SECRET_KEY', 'marina_bot_secret')
+        self.session_name = os.getenv('WHATSAPP_SESSION', 'marina_bot_session')
+        self.app_url = os.getenv('APP_URL', 'http://app:5000')
+        self._token = None
 
-    def _on_message(self, message):
-        """Handler chamado quando uma mensagem e recebida."""
-        # Ignora mensagens de grupo
-        if message.get("isGroupMsg"):
-            return
+    def _get_token(self):
+        """Retorna o token armazenado (memória ou banco de dados)."""
+        if self._token:
+            return self._token
+        config = WhatsAppConfig.get_config(self.session_name)
+        if config and config.get('token'):
+            self._token = config['token']
+        return self._token
 
-        sender_id = message.get("from", "")
-        incoming_msg = message.get("body", "").strip()
+    def _headers(self):
+        """Monta os headers de autenticação para a API do WPP Connect."""
+        token = self._get_token()
+        if not token:
+            return {}
+        return {'Authorization': f'Bearer {token}'}
 
-        if not incoming_msg or not sender_id:
-            return
-
-        print(f"[WhatsApp] Mensagem de {sender_id}: {incoming_msg}")
-
+    def generate_token(self, session_name=None):
+        """Gera um token de acesso para a sessão no WPP Connect Server."""
+        session = session_name or self.session_name
+        url = f"{self.server_url}/api/{session}/{self.secret_key}/generate-token"
         try:
-            chat_session = ChatSession(sender_id)
-            chat_session.add_message("user", incoming_msg)
-
-            ai_response = get_ai_response(chat_session)
-
-            chat_session.add_message("assistant", ai_response)
-            chat_session.save()
-
-            if self.client:
-                self.client.sendText(sender_id, ai_response)
-                print(f"[WhatsApp] Resposta enviada para {sender_id}")
+            resp = requests.post(url, timeout=15)
+            resp.raise_for_status()
+            data = resp.json()
+            token = data.get('token')
+            if token:
+                self._token = token
+                WhatsAppConfig.save_config(
+                    session_name=session,
+                    token=token,
+                    status='token_generated'
+                )
+                print(f"[WPP] Token gerado para sessão '{session}'")
+            return token
         except Exception as e:
-            print(f"[WhatsApp] Erro ao processar mensagem: {e}")
-            if self.client:
-                try:
-                    self.client.sendText(
-                        sender_id,
-                        "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente mais tarde."
-                    )
-                except Exception:
-                    pass
+            print(f"[WPP] Erro ao gerar token: {e}")
+            return None
 
-    def _run_bot(self):
-        """Loop principal do bot (bloqueante)."""
+    def start_session(self, session_name=None):
+        """Inicia a sessão no WPP Connect Server com webhook apontando para o Flask."""
+        session = session_name or self.session_name
+        if not self._get_token():
+            self.generate_token(session)
+
+        webhook_url = f"{self.app_url}/webhook/wppconnect"
+        url = f"{self.server_url}/api/{session}/start-session"
+        payload = {
+            "webhook": webhook_url,
+            "waitForLogin": False,
+            "autoClose": 60
+        }
         try:
-            print(f"[WhatsApp] Iniciando sessao '{self.session_name}'...")
-            creator = Create(session=self.session_name)
-            self.client = creator.start()
-
-            self.client.on_message(self._on_message)
-
-            print("[WhatsApp] Bot iniciado! Escaneie o QR code se solicitado.")
-            self.client.start()
-
+            resp = requests.post(url, json=payload, headers=self._headers(), timeout=30)
+            data = resp.json()
+            print(f"[WPP] start-session resposta: {data}")
+            WhatsAppConfig.save_config(session_name=session, status='starting')
+            return data
         except Exception as e:
-            print(f"[WhatsApp] Erro fatal no bot: {e}")
-        finally:
-            self.running = False
-            print("[WhatsApp] Bot encerrado.")
+            print(f"[WPP] Erro ao iniciar sessão: {e}")
+            return None
 
-    def start(self):
-        """Inicia o bot em uma thread daemon."""
-        if self.running:
-            print("[WhatsApp] Bot ja esta rodando.")
-            return
+    def get_qrcode(self, session_name=None):
+        """Retorna o QR code da sessão em formato base64."""
+        session = session_name or self.session_name
+        url = f"{self.server_url}/api/{session}/qrcode-session"
+        try:
+            resp = requests.get(url, headers=self._headers(), timeout=15)
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get('qrcode') or data.get('base64Qrcode')
+            return None
+        except Exception as e:
+            print(f"[WPP] Erro ao obter QR code: {e}")
+            return None
 
-        self.running = True
-        self.thread = threading.Thread(target=self._run_bot, daemon=True)
-        self.thread.start()
-        print("[WhatsApp] Thread do bot iniciada.")
+    def get_status(self, session_name=None):
+        """Retorna o status atual da sessão no servidor WPP Connect."""
+        session = session_name or self.session_name
+        url = f"{self.server_url}/api/{session}/status-session"
+        try:
+            resp = requests.get(url, headers=self._headers(), timeout=10)
+            if resp.status_code == 200:
+                return resp.json()
+            return {'status': 'error', 'message': f'HTTP {resp.status_code}'}
+        except requests.exceptions.ConnectionError:
+            return {'status': 'unreachable', 'message': 'Servidor WPP Connect indisponível'}
+        except Exception as e:
+            print(f"[WPP] Erro ao verificar status: {e}")
+            return {'status': 'error', 'message': str(e)}
 
-    def stop(self):
-        """Para o bot de forma controlada."""
-        self.running = False
-        if self.client:
-            try:
-                self.client.close()
-            except Exception:
-                pass
-        if self.thread and self.thread.is_alive():
-            self.thread.join(timeout=5)
+    def close_session(self, session_name=None):
+        """Encerra a sessão e limpa o token."""
+        session = session_name or self.session_name
+        url = f"{self.server_url}/api/{session}/close-session"
+        try:
+            resp = requests.post(url, headers=self._headers(), timeout=15)
+            data = resp.json()
+            WhatsAppConfig.save_config(session_name=session, status='disconnected', token='')
+            self._token = None
+            print(f"[WPP] Sessão '{session}' encerrada")
+            return data
+        except Exception as e:
+            print(f"[WPP] Erro ao fechar sessão: {e}")
+            return None
+
+    def send_message(self, phone, message, session_name=None):
+        """Envia uma mensagem de texto para um número via WPP Connect."""
+        session = session_name or self.session_name
+        url = f"{self.server_url}/api/{session}/send-message"
+        payload = {
+            "phone": phone,
+            "message": message,
+            "isGroup": False
+        }
+        try:
+            resp = requests.post(url, json=payload, headers=self._headers(), timeout=15)
+            return resp.json()
+        except Exception as e:
+            print(f"[WPP] Erro ao enviar mensagem: {e}")
+            return None
+
+    def logout_session(self, session_name=None):
+        """Faz logout da sessão (desvincula o dispositivo)."""
+        session = session_name or self.session_name
+        url = f"{self.server_url}/api/{session}/logout-session"
+        try:
+            resp = requests.post(url, headers=self._headers(), timeout=15)
+            WhatsAppConfig.save_config(session_name=session, status='disconnected', token='')
+            self._token = None
+            return resp.json()
+        except Exception as e:
+            print(f"[WPP] Erro ao fazer logout: {e}")
+            return None
+
+
+_wpp_service = None
+
+
+def get_wpp_service():
+    """Retorna a instância global do serviço WPP Connect."""
+    global _wpp_service
+    if _wpp_service is None:
+        _wpp_service = WhatsAppAPIService()
+    return _wpp_service

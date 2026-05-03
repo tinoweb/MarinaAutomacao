@@ -17,9 +17,11 @@ def create_app():
     from app.controllers.main_controller import main_bp
     from app.controllers.webhook_controller import webhook_bp
     from app.controllers.admin_controller import admin_bp
+    from app.controllers.whatsapp_controller import whatsapp_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(webhook_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(whatsapp_bp)
     
     return app

@@ -70,6 +70,20 @@ def init_db():
         )
         ''')
         
+        # Cria tabela de configuração da conexão WhatsApp
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS whatsapp_config (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            session_name VARCHAR(100) NOT NULL,
+            phone_number VARCHAR(30),
+            token TEXT,
+            status VARCHAR(30) NOT NULL DEFAULT 'disconnected',
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL,
+            UNIQUE KEY (session_name)
+        )
+        ''')
+
         conn.commit()
         cursor.close()
         conn.close()

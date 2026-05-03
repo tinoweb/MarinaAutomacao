@@ -32,6 +32,11 @@
                         <i class="fas fa-comments"></i>Conversas
                     </a>
                 </li>
+                <li {% if request.endpoint and request.endpoint.startswith('whatsapp.') %}class="active"{% endif %}>
+                    <a href="{{ url_for('whatsapp.index') }}">
+                        <i class="fab fa-whatsapp"></i>WhatsApp
+                    </a>
+                </li>
                 <li {% if request.endpoint == 'admin.settings' %}class="active"{% endif %}>
                     <a href="{{ url_for('admin.settings') }}">
                         <i class="fas fa-sliders"></i>Configurações
