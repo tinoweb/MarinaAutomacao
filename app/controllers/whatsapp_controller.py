@@ -53,7 +53,8 @@ def qrcode():
         os.getenv('WHATSAPP_SESSION', 'marina_bot_session')
     )
     wpp = get_wpp_service()
-    qr = wpp.get_qrcode(session_name)
+    status_data = wpp.get_status(session_name)
+    qr = status_data.get('qrcode') if isinstance(status_data, dict) else None
     return jsonify({'qrcode': qr})
 
 
