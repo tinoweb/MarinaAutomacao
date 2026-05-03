@@ -33,38 +33,38 @@
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Informações do Cliente</h6>
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <strong>ID da Conversa:</strong>
-                    <p>{{ conversation.id if conversation else '1' }}</p>
+            <div class="card-body p-0">
+                <div class="info-item px-3 pt-3">
+                    <div class="info-label"><i class="fas fa-hashtag me-1"></i>ID da Conversa</div>
+                    <div class="info-value">#{{ conversation.id if conversation else '1' }}</div>
                 </div>
-                <div class="mb-3">
-                    <strong>Número do WhatsApp:</strong>
-                    <p>{{ conversation.user_id if conversation else 'whatsapp:+5511999999999' }}</p>
+                <div class="info-item px-3">
+                    <div class="info-label"><i class="fab fa-whatsapp me-1"></i>Número do WhatsApp</div>
+                    <div class="info-value">{{ conversation.user_id if conversation else 'whatsapp:+5511999999999' }}</div>
                 </div>
-                <div class="mb-3">
-                    <strong>Nome:</strong>
-                    <p>
+                <div class="info-item px-3">
+                    <div class="info-label"><i class="fas fa-user me-1"></i>Nome</div>
+                    <div class="info-value">
                         {% if conversation and conversation.user_data and conversation.user_data.nome %}
                             {{ conversation.user_data.nome }}
                         {% else %}
                             João Silva
                         {% endif %}
-                    </p>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <strong>Início da Conversa:</strong>
-                    <p>
+                <div class="info-item px-3">
+                    <div class="info-label"><i class="fas fa-clock me-1"></i>Início da Conversa</div>
+                    <div class="info-value">
                         {% if conversation and conversation.created_at %}
                             {{ conversation.created_at.strftime('%d/%m/%Y %H:%M') }}
                         {% else %}
                             02/05/2026 14:23
                         {% endif %}
-                    </p>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <strong>Status:</strong>
-                    <p>
+                <div class="info-item px-3 pb-3">
+                    <div class="info-label"><i class="fas fa-circle-dot me-1"></i>Status</div>
+                    <div class="info-value mt-1">
                         {% if conversation and conversation.status %}
                             {% if conversation.status == 'active' %}
                                 <span class="badge bg-primary">Em Andamento</span>
@@ -76,7 +76,7 @@
                         {% else %}
                             <span class="badge bg-success">Concluída</span>
                         {% endif %}
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -207,15 +207,20 @@
                 </div>
 
                 <!-- Responder ao Cliente -->
-                <div class="mt-4">
-                    <h6 class="font-weight-bold">Responder ao Cliente</h6>
-                    <div class="input-group">
-                        <textarea class="form-control" rows="3" placeholder="Digite uma mensagem..."></textarea>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-1"></i>Enviar
+                <div class="reply-area">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-reply text-primary me-2" style="font-size:0.8rem"></i>
+                        <span class="fw-semibold" style="font-size:0.88rem;color:#e6edf3">Responder ao Cliente</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <textarea class="form-control" rows="2" placeholder="Digite uma mensagem para enviar via WhatsApp..."></textarea>
+                        <button class="btn btn-primary align-self-end px-3">
+                            <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
-                    <small class="text-muted">Esta mensagem será enviada diretamente para o WhatsApp do cliente.</small>
+                    <small class="text-muted mt-1 d-block">
+                        <i class="fas fa-info-circle me-1"></i>Mensagem enviada diretamente para o WhatsApp do cliente.
+                    </small>
                 </div>
             </div>
         </div>
@@ -225,6 +230,25 @@
 
 {% block extra_css %}
 <style>
+    .info-item {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(48,54,61,0.5);
+    }
+    .info-item:last-child { border-bottom: none; }
+    .info-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #8b949e;
+        margin-bottom: 3px;
+    }
+    .info-value {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #e6edf3;
+    }
+
     .chat-container {
         max-height: 500px;
         overflow-y: auto;
@@ -233,25 +257,28 @@
         border-radius: 10px;
         border: 1px solid #30363d;
     }
+    .chat-container::-webkit-scrollbar { width: 5px; }
+    .chat-container::-webkit-scrollbar-track { background: transparent; }
+    .chat-container::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
 
     .message {
         margin-bottom: 14px;
         padding: 10px 14px;
         border-radius: 10px;
-        max-width: 80%;
+        max-width: 82%;
         font-size: 0.88rem;
     }
 
     .message-bot {
-        background-color: rgba(124, 58, 237, 0.1);
-        border: 1px solid rgba(124, 58, 237, 0.2);
+        background-color: rgba(124, 58, 237, 0.12);
+        border: 1px solid rgba(124, 58, 237, 0.25);
         border-radius: 4px 10px 10px 10px;
         margin-right: auto;
         color: #e6edf3;
     }
 
     .message-user {
-        background-color: #1c2128;
+        background-color: rgba(30, 38, 50, 0.9);
         border: 1px solid #30363d;
         border-radius: 10px 4px 10px 10px;
         margin-left: auto;
@@ -261,13 +288,26 @@
     .message-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 6px;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
     }
 
-    .message-header strong { color: #a78bfa; }
+    .message-bot .message-header strong { color: #a78bfa; }
     .message-user .message-header strong { color: #58a6ff; }
+    .message-header .msg-time { color: #8b949e; font-size: 0.72rem; }
+    .message-content { word-wrap: break-word; line-height: 1.6; color: #e6edf3; }
 
-    .message-content { word-wrap: break-word; line-height: 1.55; }
+    .reply-area {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 14px;
+        margin-top: 16px;
+    }
+    .reply-area .form-control {
+        resize: none;
+        font-size: 0.88rem;
+    }
 </style>
 {% endblock %}

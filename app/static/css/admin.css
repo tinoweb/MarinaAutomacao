@@ -207,6 +207,17 @@ h1.h3 {
 .text-gray-800 { color: var(--admin-text) !important; }
 .text-muted { color: var(--admin-muted) !important; }
 
+/* Garante que todo texto dentro de cards herda a cor correta */
+.card-body p,
+.card-body span:not(.badge),
+.card-body strong,
+.card-body li,
+.card-body label,
+.card-body div,
+p, strong, li { color: inherit; }
+
+.card-body { color: var(--admin-text) !important; }
+
 /* Cards */
 .card {
     background-color: var(--admin-card) !important;
