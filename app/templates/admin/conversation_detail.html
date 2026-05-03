@@ -1,6 +1,6 @@
 {% extends 'admin/base.html' %}
 
-{% block title %}Detalhes da Conversa - JusBot{% endblock %}
+{% block title %}Detalhes da Conversa - AtendBot{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
@@ -58,7 +58,7 @@
                         {% if conversation and conversation.created_at %}
                             {{ conversation.created_at.strftime('%d/%m/%Y %H:%M') }}
                         {% else %}
-                            02/04/2025 14:23
+                            02/05/2026 14:23
                         {% endif %}
                     </p>
                 </div>
@@ -148,7 +148,7 @@
                         {% for message in conversation.messages %}
                             <div class="message {% if message.role == 'assistant' %}message-bot{% else %}message-user{% endif %}">
                                 <div class="message-header">
-                                    <strong>{{ 'JusBot' if message.role == 'assistant' else 'Cliente' }}</strong>
+                                    <strong>{{ 'AtendBot' if message.role == 'assistant' else 'Cliente' }}</strong>
                                     <small class="text-muted">{{ message.timestamp.strftime('%d/%m/%Y %H:%M') }}</small>
                                 </div>
                                 <div class="message-content">
@@ -160,17 +160,17 @@
                         <!-- Mensagens de exemplo -->
                         <div class="message message-bot">
                             <div class="message-header">
-                                <strong>JusBot</strong>
-                                <small class="text-muted">02/04/2025 14:23</small>
+                                <strong>AtendBot</strong>
+                                <small class="text-muted">02/05/2026 14:23</small>
                             </div>
                             <div class="message-content">
-                                Olá! Sou o JusBot, assistente virtual especializado em direito trabalhista. Como posso ajudar você hoje? Para começar, poderia me informar seu nome completo?
+                                Olá! Sou o AtendBot, seu assistente virtual inteligente. Como posso te ajudar hoje? Para começar, poderia me informar seu nome?
                             </div>
                         </div>
                         <div class="message message-user">
                             <div class="message-header">
                                 <strong>Cliente</strong>
-                                <small class="text-muted">02/04/2025 14:24</small>
+                                <small class="text-muted">02/05/2026 14:24</small>
                             </div>
                             <div class="message-content">
                                 Olá, meu nome é João Silva.
@@ -178,8 +178,8 @@
                         </div>
                         <div class="message message-bot">
                             <div class="message-header">
-                                <strong>JusBot</strong>
-                                <small class="text-muted">02/04/2025 14:24</small>
+                                <strong>AtendBot</strong>
+                                <small class="text-muted">02/05/2026 14:24</small>
                             </div>
                             <div class="message-content">
                                 Obrigado, João. Para que eu possa entender melhor sua situação, poderia me contar qual problema você está enfrentando com seu empregador?
@@ -188,7 +188,7 @@
                         <div class="message message-user">
                             <div class="message-header">
                                 <strong>Cliente</strong>
-                                <small class="text-muted">02/04/2025 14:25</small>
+                                <small class="text-muted">02/05/2026 14:25</small>
                             </div>
                             <div class="message-content">
                                 Fui demitido sem justa causa há 3 semanas e não recebi todas as verbas rescisórias. Trabalhei na empresa por 5 anos e 2 meses.
@@ -196,8 +196,8 @@
                         </div>
                         <div class="message message-bot">
                             <div class="message-header">
-                                <strong>JusBot</strong>
-                                <small class="text-muted">02/04/2025 14:26</small>
+                                <strong>AtendBot</strong>
+                                <small class="text-muted">02/05/2026 14:26</small>
                             </div>
                             <div class="message-content">
                                 Entendi, João. Isso é uma situação séria. Poderia me informar quando você foi admitido na empresa (data de início) e quando foi seu último dia de trabalho?
@@ -228,38 +228,46 @@
     .chat-container {
         max-height: 500px;
         overflow-y: auto;
-        padding: 10px;
-        background-color: #f8f9fc;
-        border-radius: 5px;
+        padding: 14px;
+        background-color: #0d1117;
+        border-radius: 10px;
+        border: 1px solid #30363d;
     }
-    
+
     .message {
-        margin-bottom: 15px;
-        padding: 10px 15px;
+        margin-bottom: 14px;
+        padding: 10px 14px;
         border-radius: 10px;
         max-width: 80%;
+        font-size: 0.88rem;
     }
-    
+
     .message-bot {
-        background-color: #e3f2fd;
+        background-color: rgba(124, 58, 237, 0.1);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 4px 10px 10px 10px;
         margin-right: auto;
-        border-bottom-left-radius: 0;
+        color: #e6edf3;
     }
-    
+
     .message-user {
-        background-color: #e8f5e9;
+        background-color: #1c2128;
+        border: 1px solid #30363d;
+        border-radius: 10px 4px 10px 10px;
         margin-left: auto;
-        border-bottom-right-radius: 0;
+        color: #e6edf3;
     }
-    
+
     .message-header {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 5px;
+        margin-bottom: 6px;
+        font-size: 0.78rem;
     }
-    
-    .message-content {
-        word-wrap: break-word;
-    }
+
+    .message-header strong { color: #a78bfa; }
+    .message-user .message-header strong { color: #58a6ff; }
+
+    .message-content { word-wrap: break-word; line-height: 1.55; }
 </style>
 {% endblock %}

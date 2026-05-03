@@ -1,6 +1,6 @@
 {% extends 'admin/base.html' %}
 
-{% block title %}Dashboard - JusBot{% endblock %}
+{% block title %}Dashboard - AtendBot{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
@@ -149,8 +149,8 @@
                             <tr>
                                 <td>1</td>
                                 <td>whatsapp:+5511999999999</td>
-                                <td>02/04/2025 14:23</td>
-                                <td>02/04/2025 14:45</td>
+                                <td>02/05/2026 14:23</td>
+                                <td>02/05/2026 14:45</td>
                                 <td><span class="badge bg-success">Concluída</span></td>
                                 <td>
                                     <a href="{{ url_for('admin.view_conversation', conversation_id=1) }}" class="btn btn-sm btn-primary">
@@ -161,8 +161,8 @@
                             <tr>
                                 <td>2</td>
                                 <td>whatsapp:+5511888888888</td>
-                                <td>02/04/2025 15:10</td>
-                                <td>02/04/2025 15:30</td>
+                                <td>02/05/2026 15:10</td>
+                                <td>02/05/2026 15:30</td>
                                 <td><span class="badge bg-primary">Em Andamento</span></td>
                                 <td>
                                     <a href="{{ url_for('admin.view_conversation', conversation_id=2) }}" class="btn btn-sm btn-primary">
@@ -173,8 +173,8 @@
                             <tr>
                                 <td>3</td>
                                 <td>whatsapp:+5511777777777</td>
-                                <td>02/04/2025 16:05</td>
-                                <td>02/04/2025 16:15</td>
+                                <td>02/05/2026 16:05</td>
+                                <td>02/05/2026 16:15</td>
                                 <td><span class="badge bg-warning">Abandonada</span></td>
                                 <td>
                                     <a href="{{ url_for('admin.view_conversation', conversation_id=3) }}" class="btn btn-sm btn-primary">
@@ -201,7 +201,7 @@
     var myLineChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ["26/03", "27/03", "28/03", "29/03", "30/03", "31/03", "01/04", "02/04"],
+            labels: ["24/04", "25/04", "26/04", "27/04", "28/04", "29/04", "30/04", "01/05"],
             datasets: [{
                 label: "Conversas",
                 lineTension: 0.3,
@@ -220,59 +220,26 @@
         },
         options: {
             maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    left: 10,
-                    right: 25,
-                    top: 25,
-                    bottom: 0
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1c2128',
+                    titleColor: '#e6edf3',
+                    bodyColor: '#8b949e',
+                    borderColor: '#30363d',
+                    borderWidth: 1
                 }
             },
             scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
-                    },
-                    gridLines: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 7
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        maxTicksLimit: 5,
-                        padding: 10,
-                        beginAtZero: true
-                    },
-                    gridLines: {
-                        color: "rgb(234, 236, 244)",
-                        zeroLineColor: "rgb(234, 236, 244)",
-                        drawBorder: false,
-                        borderDash: [2],
-                        zeroLineBorderDash: [2]
-                    }
-                }],
-            },
-            legend: {
-                display: false
-            },
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                titleMarginBottom: 10,
-                titleFontColor: '#6e707e',
-                titleFontSize: 14,
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                intersect: false,
-                mode: 'index',
-                caretPadding: 10
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#8b949e', maxTicksLimit: 7 }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(48,54,61,0.5)', drawBorder: false },
+                    ticks: { color: '#8b949e', maxTicksLimit: 5 }
+                }
             }
         }
     });
@@ -292,20 +259,17 @@
         },
         options: {
             maintainAspectRatio: false,
-            tooltips: {
-                backgroundColor: "rgb(255,255,255)",
-                bodyFontColor: "#858796",
-                borderColor: '#dddfeb',
-                borderWidth: 1,
-                xPadding: 15,
-                yPadding: 15,
-                displayColors: false,
-                caretPadding: 10,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1c2128',
+                    titleColor: '#e6edf3',
+                    bodyColor: '#8b949e',
+                    borderColor: '#30363d',
+                    borderWidth: 1
+                }
             },
-            legend: {
-                display: false
-            },
-            cutoutPercentage: 80,
+            cutout: '80%'
         },
     });
 </script>
