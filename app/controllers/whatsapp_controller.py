@@ -69,9 +69,19 @@ def status():
     wpp = get_wpp_service()
     server_status = wpp.get_status(session_name)
     db_config = WhatsAppConfig.get_config(session_name) or {}
+
+    server_wpp_status = server_status.get('status', '') if isinstance(server_status, dict) else ''
+    db_status = db_config.get('status', 'unknown')
+
+    if server_wpp_status == 'CONNECTED' and db_status != 'connected':
+        phone = server_status.get('phone', '') or ''
+        WhatsAppConfig.save_config(session_name=session_name, status='connected', phone_number=phone)
+        db_status = 'connected'
+        db_config['phone_number'] = phone
+
     return jsonify({
         'server': server_status,
-        'db_status': db_config.get('status', 'unknown'),
+        'db_status': db_status,
         'phone': db_config.get('phone_number', '')
     })
 

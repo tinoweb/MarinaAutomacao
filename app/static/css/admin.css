@@ -261,6 +261,10 @@ h1.h3 {
 
 /* Tables */
 .table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: transparent;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.03);
+    --bs-table-border-color: var(--admin-border);
     color: var(--admin-text) !important;
     margin: 0;
 }
@@ -277,6 +281,7 @@ h1.h3 {
 }
 
 .table tbody tr {
+    background-color: transparent !important;
     border-bottom: 1px solid rgba(48, 54, 61, 0.6);
     transition: background 0.15s;
 }
@@ -284,15 +289,21 @@ h1.h3 {
 .table tbody tr:last-child { border-bottom: none; }
 
 .table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.02) !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 .table tbody td {
+    background-color: transparent !important;
     border: none !important;
     padding: 11px 14px;
     font-size: 0.86rem;
     color: var(--admin-text);
     vertical-align: middle;
+}
+
+.table > :not(caption) > * > * {
+    background-color: transparent !important;
+    box-shadow: none !important;
 }
 
 .table-bordered { border: none !important; }

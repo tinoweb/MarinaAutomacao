@@ -10,8 +10,8 @@
         align-items: center;
         justify-content: center;
         min-height: 260px;
-        background: #f8f9fc;
-        border: 2px dashed #d1d3e2;
+        background: rgba(255,255,255,0.03);
+        border: 2px dashed #30363d;
         border-radius: 12px;
     }
     .qr-wrapper img { border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
@@ -292,10 +292,11 @@
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 var newStatus = data.db_status;
+                var serverStatus = data.server && data.server.status;
                 var badge = document.getElementById('db-status-badge');
                 var phoneEl = document.getElementById('phone-display');
 
-                if (newStatus === 'connected') {
+                if (newStatus === 'connected' || serverStatus === 'CONNECTED') {
                     stopPolling();
                     if (badge) {
                         badge.className = 'status-badge bg-success text-white';
