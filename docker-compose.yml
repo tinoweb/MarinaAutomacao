@@ -16,7 +16,10 @@ services:
       - marina_network
 
   wppconnect:
-    image: wppconnect/wppconnect-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.wppconnect
+    image: marina_wppconnect:local
     container_name: marina_wppconnect
     restart: unless-stopped
     ports:
