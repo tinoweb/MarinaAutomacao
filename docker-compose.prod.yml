@@ -16,6 +16,20 @@ services:
     # ports:
     #   - "3306:3306"
 
+  wppconnect:
+    image: wppconnect/wppconnect-server:latest
+    container_name: marina_wppconnect
+    restart: always
+    environment:
+      - SECRET_KEY=${WPP_SECRET_KEY:-marina_bot_secret}
+    volumes:
+      - wpp_tokens:/home/user/wppconnect-server/tokens
+    networks:
+      - marina_network
+    # Em producao, nao expoe a porta externamente (acesso apenas interno via rede Docker)
+    # ports:
+    #   - "21465:21465"
+
   app:
     build:
       context: .
@@ -35,10 +49,12 @@ services:
       - MYSQL_DB=${MYSQL_DB}
       - MYSQL_PORT=3306
       - WHATSAPP_SESSION=${WHATSAPP_SESSION:-marina_bot_session}
-    volumes:
-      - whatsapp_sessions:/app/whatsapp_sessions
+      - WPP_SERVER_URL=http://wppconnect:21465
+      - WPP_SECRET_KEY=${WPP_SECRET_KEY:-marina_bot_secret}
+      - APP_URL=${APP_URL}
     depends_on:
       - db
+      - wppconnect
     networks:
       - marina_network
     # Em producao, use um proxy reverso (nginx/traefik) apontando para porta 5000
@@ -47,7 +63,7 @@ services:
 
 volumes:
   db_data:
-  whatsapp_sessions:
+  wpp_tokens:
 
 networks:
   marina_network:
