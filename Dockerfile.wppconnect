@@ -51,4 +51,11 @@ RUN mkdir -p tokens
 
 EXPOSE 21465
 
-CMD ["npm", "start"]
+# Script de startup: substitui a chave hardcoded pelo SECRET_KEY do ambiente
+RUN printf '#!/bin/sh\n\
+if [ -n "$SECRET_KEY" ]; then\n\
+  sed -i "s/THISISMYSECURETOKEN/$SECRET_KEY/g" /home/user/wppconnect-server/dist/config.js\n\
+fi\n\
+exec node /home/user/wppconnect-server/dist/server.js\n' > /start.sh && chmod +x /start.sh
+
+CMD ["/start.sh"]
