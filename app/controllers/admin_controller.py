@@ -45,16 +45,20 @@ def dashboard():
 @login_required
 def conversations():
     """Lista de conversas ativas e concluídas"""
-    # Aqui você implementaria a lógica para buscar conversas do banco de dados
-    conversations = []  # Placeholder para dados reais
+    from app.models.chat_model import ChatSession
+    conversations = ChatSession.get_all_sessions()
     return render_template('admin/conversations.html', conversations=conversations)
 
 @admin_bp.route('/conversas/<conversation_id>')
 @login_required
 def view_conversation(conversation_id):
     """Visualiza uma conversa específica"""
-    # Aqui você implementaria a lógica para buscar uma conversa específica
-    conversation = {}  # Placeholder para dados reais
+    from app.models.chat_model import ChatSession
+    conversation = ChatSession.get_session(conversation_id)
+    if not conversation:
+        flash('Conversa não encontrada', 'error')
+        return redirect(url_for('admin.conversations'))
+    
     return render_template('admin/conversation_detail.html', conversation=conversation)
 
 @admin_bp.route('/configuracoes', methods=['GET', 'POST'])
