@@ -20,8 +20,10 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Verificação simples de credenciais (em produção, use algo mais seguro)
-        if username == 'admin' and password == 'senha123':
+        # Credenciais lidas das variáveis de ambiente (ADMIN_USER / ADMIN_PASSWORD)
+        admin_user = os.getenv('ADMIN_USER', 'admin')
+        admin_pass = os.getenv('ADMIN_PASSWORD', 'senha123')
+        if username == admin_user and password == admin_pass:
             session['admin_logged_in'] = True
             return redirect(url_for('admin.dashboard'))
         else:

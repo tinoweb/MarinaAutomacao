@@ -1,8 +1,6 @@
 # Sobrescreve configuracoes para desenvolvimento local
 # Este arquivo e lido automaticamente pelo docker-compose junto com docker-compose.yml
 
-version: "3.8"
-
 services:
   app:
     environment:

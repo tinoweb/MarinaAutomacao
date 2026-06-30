@@ -167,12 +167,11 @@ class ChatSession:
         # Formata as mensagens para o formato esperado pela OpenAI
         formatted_messages = []
         
+        from app.models.ai_model import load_system_prompt
         # Adiciona um sistema de mensagem inicial para dar contexto ao modelo
         formatted_messages.append({
             "role": "system",
-            "content": "Você é um assistente jurídico especializado em direito trabalhista, chamado JusBot. " +
-                      "Seu objetivo é coletar informações relevantes para casos trabalhistas e ajudar " +
-                      "clientes a entenderem seus direitos. Seja cordial, profissional e preciso."
+            "content": load_system_prompt()
         })
         
         # Adiciona as mensagens da conversa
@@ -237,6 +236,54 @@ class ChatSession:
         self.updated_at = datetime.now()
         self.save()
     
+    @staticmethod
+    def get_session(session_id):
+        """
+        Retorna uma sessão específica pelo ID com suas mensagens e dados do usuário
+        
+        Args:
+            session_id (int): ID da sessão
+            
+        Returns:
+            dict: Dados da sessão ou None se não encontrada
+        """
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            
+            cursor.execute("SELECT * FROM chat_sessions WHERE id = %s", (session_id,))
+            session_data = cursor.fetchone()
+            
+            if not session_data:
+                cursor.close()
+                conn.close()
+                return None
+            
+            sid = session_data['id']
+            
+            cursor.execute(
+                "SELECT * FROM chat_messages WHERE session_id = %s ORDER BY timestamp ASC",
+                (sid,)
+            )
+            messages = cursor.fetchall()
+            
+            cursor.execute("SELECT * FROM user_data WHERE session_id = %s", (sid,))
+            user_data_rows = cursor.fetchall()
+            
+            user_data_dict = {row['key_name']: row['value'] for row in user_data_rows}
+            
+            session_data['messages'] = messages
+            session_data['user_data'] = user_data_dict
+            
+            cursor.close()
+            conn.close()
+            
+            return session_data
+            
+        except Exception as e:
+            print(f"Erro ao buscar sessão {session_id}: {e}")
+            return None
+
     @staticmethod
     def get_all_sessions(status=None):
         """
