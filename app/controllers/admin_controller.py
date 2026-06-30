@@ -67,12 +67,77 @@ def view_conversation(conversation_id):
 @login_required
 def settings():
     """Configurações do sistema"""
+    from app.config.database import get_db_connection
+
+    # Configurações padrão
+    defaults = {
+        'bot_name': 'AtendBot',
+        'welcome_message': 'Olá! Sou o AtendBot, seu assistente virtual. Como posso te ajudar hoje?',
+        'system_prompt': '',
+        'ai_model': 'gpt-3.5-turbo',
+        'temperature': '0.7',
+        'whatsapp_number': '',
+        'session_name': 'marina_bot_session'
+    }
+
     if request.method == 'POST':
-        # Aqui você implementaria a lógica para salvar as configurações
-        flash('Configurações salvas com sucesso', 'success')
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            # Chaves que serão salvas
+            settings_to_save = [
+                'bot_name',
+                'welcome_message',
+                'system_prompt',
+                'ai_model',
+                'temperature',
+                'session_name'
+            ]
+
+            for key in settings_to_save:
+                value = request.form.get(key, defaults[key])
+                cursor.execute('''
+                    INSERT INTO ai_settings (setting_key, setting_value)
+                    VALUES (%s, %s)
+                    ON DUPLICATE KEY UPDATE setting_value = %s, updated_at = NOW()
+                ''', (key, value, value))
+
+            conn.commit()
+            cursor.close()
+            conn.close()
+            flash('Configurações salvas com sucesso', 'success')
+        except Exception as e:
+            print(f"[Settings] Erro ao salvar configurações: {e}")
+            flash('Erro ao salvar as configurações', 'danger')
+        
         return redirect(url_for('admin.settings'))
-    
-    return render_template('admin/settings.html')
+
+    # Caso GET: carregar do banco de dados
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT setting_key, setting_value FROM ai_settings")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        for row in rows:
+            defaults[row['setting_key']] = row['setting_value']
+    except Exception as e:
+        print(f"[Settings] Erro ao carregar configurações: {e}")
+
+    # Carrega configurações do WhatsApp
+    try:
+        from app.models.whatsapp_model import WhatsAppConfig
+        wa_config = WhatsAppConfig.get_config()
+        if wa_config:
+            defaults['whatsapp_number'] = wa_config.get('phone_number', '')
+            defaults['session_name'] = wa_config.get('session_name', 'marina_bot_session')
+    except Exception as e:
+        pass
+
+    return render_template('admin/settings.html', **defaults)
 
 @admin_bp.route('/clientes')
 @login_required

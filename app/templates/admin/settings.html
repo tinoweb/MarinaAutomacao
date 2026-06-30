@@ -25,39 +25,39 @@
                     <div class="mb-3">
                         <label for="bot_name" class="form-label">Nome do Assistente</label>
                         <input type="text" class="form-control" id="bot_name" name="bot_name"
-                               value="AtendBot" placeholder="Ex: AtendBot">
+                               value="{{ bot_name or 'AtendBot' }}" placeholder="Ex: AtendBot">
                         <div class="form-text">Nome exibido nas mensagens enviadas pelo assistente.</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="welcome_message" class="form-label">Mensagem de Boas-vindas</label>
-                        <textarea class="form-control" id="welcome_message" name="welcome_message" rows="3">Olá! Sou o AtendBot, seu assistente virtual. Como posso te ajudar hoje?</textarea>
+                        <textarea class="form-control" id="welcome_message" name="welcome_message" rows="3">{{ welcome_message or 'Olá! Sou o AtendBot, seu assistente virtual. Como posso te ajudar hoje?' }}</textarea>
                         <div class="form-text">Mensagem enviada ao iniciar uma nova conversa.</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="system_prompt" class="form-label">Prompt do Sistema (Personalidade)</label>
                         <textarea class="form-control" id="system_prompt" name="system_prompt" rows="4"
-                                  placeholder="Descreva o comportamento e especialidade do assistente..."></textarea>
+                                  placeholder="Descreva o comportamento e especialidade do assistente...">{{ system_prompt or '' }}</textarea>
                         <div class="form-text">Define a personalidade e contexto de atuação do assistente.</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="ai_model" class="form-label">Modelo de IA</label>
                         <select class="form-select" id="ai_model" name="ai_model">
-                            <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo (Recomendado)</option>
-                            <option value="gpt-4o-mini">GPT-4o Mini</option>
-                            <option value="gpt-4o">GPT-4o</option>
+                            <option value="gpt-3.5-turbo" {{ 'selected' if ai_model == 'gpt-3.5-turbo' else '' }}>GPT-3.5 Turbo (Recomendado)</option>
+                            <option value="gpt-4o-mini" {{ 'selected' if ai_model == 'gpt-4o-mini' else '' }}>GPT-4o Mini</option>
+                            <option value="gpt-4o" {{ 'selected' if ai_model == 'gpt-4o' else '' }}>GPT-4o</option>
                         </select>
                         <div class="form-text">Modelo de IA utilizado para gerar respostas.</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="temperature" class="form-label">
-                            Temperatura (Criatividade): <span id="temperature_value">0.7</span>
+                            Temperatura (Criatividade): <span id="temperature_value">{{ temperature or '0.7' }}</span>
                         </label>
                         <input type="range" class="form-range" id="temperature" name="temperature"
-                               min="0" max="1" step="0.1" value="0.7">
+                               min="0" max="1" step="0.1" value="{{ temperature or '0.7' }}">
                         <div class="form-text">Valores altos = mais criativo. Valores baixos = mais preciso.</div>
                     </div>
                 </div>
@@ -117,6 +117,41 @@
                 </div>
             </div>
 
+            <!-- Configurações de Atendimento Profissional -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fab fa-instagram me-2"></i>Atendimento Profissional
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="instagram_handle" class="form-label">Instagram da Advogada</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                            <input type="text" class="form-control" id="instagram_handle" name="instagram_handle"
+                                   value="{{ instagram_handle or '@drainss' }}" placeholder="@perfil">
+                        </div>
+                        <div class="form-text">Exibido nas mensagens de follow-up e encaminhamento para a Dra. Marina.</div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label">Follow-up Automático</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="followup_enabled"
+                                       name="followup_enabled" value="true"
+                                       {{ 'checked' if followup_enabled != 'false' else '' }}>
+                                <label class="form-check-label" for="followup_enabled">Ativo</label>
+                            </div>
+                            <span class="text-muted" style="font-size:0.82rem">
+                                Envia mensagem automática após <strong>1h</strong> (recuperação) e <strong>24h</strong> (urgência) sem resposta do cliente.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-end gap-2 mb-4">
                 <button type="reset" class="btn btn-outline-secondary">Restaurar</button>
                 <button type="submit" class="btn btn-primary">
@@ -168,15 +203,53 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary btn-sm">
+                    <button class="btn btn-outline-primary btn-sm" id="btnLimparCache" onclick="quickAction('cache')">
                         <i class="fas fa-broom me-1"></i>Limpar Cache
                     </button>
-                    <button class="btn btn-outline-secondary btn-sm">
+                    <button class="btn btn-outline-secondary btn-sm" id="btnReiniciar" onclick="quickAction('restart')">
                         <i class="fas fa-rotate-right me-1"></i>Reiniciar Serviço
                     </button>
-                    <button class="btn btn-danger btn-sm confirm-danger">
+                    <button class="btn btn-danger btn-sm" id="btnLimparConversas" onclick="confirmarLimparConversas()">
                         <i class="fas fa-trash me-1"></i>Limpar Todas as Conversas
                     </button>
+                </div>
+                <div id="quickActionMsg" class="mt-2" style="display:none;font-size:.8rem"></div>
+            </div>
+        </div>
+
+        <!-- Modal confirmação -->
+        <div class="modal fade" id="modalLimparConversas" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background:#1c2128;border:1px solid #30363d;color:#e6edf3">
+                    <div class="modal-header" style="border-color:#30363d">
+                        <h5 class="modal-title text-danger"><i class="fas fa-triangle-exclamation me-2"></i>Atenção!</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Esta ação vai <strong>apagar permanentemente</strong> todas as conversas, mensagens, notas e checklists.</p>
+                        <p class="text-muted mb-0" style="font-size:.85rem">Esta operação não pode ser desfeita.</p>
+                    </div>
+                    <div class="modal-footer" style="border-color:#30363d">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="executarLimparConversas()">
+                            <i class="fas fa-trash me-1"></i>Confirmar e Apagar Tudo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Uso e Custo OpenAI -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold" style="color:#58a6ff">
+                    <i class="fas fa-microchip me-2"></i>Uso OpenAI (Estimado)
+                </h6>
+                <button class="btn btn-xs" style="font-size:.72rem;padding:2px 8px;border:1px solid #30363d;color:#58a6ff;background:none"
+                        onclick="refreshUsage()"><i class="fas fa-rotate"></i></button>
+            </div>
+            <div class="card-body p-3" id="openaiUsageCard">
+                <div class="text-center text-muted" style="font-size:.8rem">
+                    <i class="fas fa-spinner fa-spin me-1"></i>Carregando...
                 </div>
             </div>
         </div>
@@ -189,18 +262,111 @@
     document.addEventListener('DOMContentLoaded', function() {
         const temperatureSlider = document.getElementById('temperature');
         const temperatureValue = document.getElementById('temperature_value');
-
+        loadOpenAIUsage();
         temperatureSlider.addEventListener('input', function() {
             temperatureValue.textContent = this.value;
         });
-
-        document.querySelectorAll('.confirm-danger').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                if (!confirm('Esta ação é irreversível. Confirma?')) {
-                    e.preventDefault();
-                }
-            });
-        });
     });
+
+    /* ── OpenAI Usage ────────────────────────────────────── */
+    async function loadOpenAIUsage() {
+        const card = document.getElementById('openaiUsageCard');
+        try {
+            const r = await fetch('/admin/openai/usage');
+            const d = await r.json();
+            if (d.status !== 'success') {
+                card.innerHTML = '<p class="text-danger" style="font-size:.8rem">Erro ao carregar</p>';
+                return;
+            }
+            const t = d.total, m = d.mes_atual;
+            const fmtN = n => n ? parseInt(n).toLocaleString('pt-BR') : '0';
+            const fmtC = c => c ? parseFloat(c).toFixed(4) : '0.0000';
+            const fmtBrl = c => c ? (parseFloat(c) * 5.7).toFixed(2) : '0.00';
+            const diasRows = (d.por_dia || []).slice(-5).map(row =>
+                '<tr><td style="color:#8b949e;font-size:.72rem">' + row.dia + '</td>' +
+                '<td style="font-size:.72rem;text-align:right">' + fmtN(row.tokens) + '</td>' +
+                '<td style="font-size:.72rem;text-align:right;color:#f0883e">$' + fmtC(row.custo) + '</td></tr>'
+            ).join('');
+            card.innerHTML =
+                '<div class="mb-3 p-2 rounded" style="background:#0d1117;border:1px solid #30363d">' +
+                  '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                    '<span class="text-muted" style="font-size:.72rem">MÊS ATUAL</span>' +
+                    '<span class="badge bg-primary" style="font-size:.65rem">em uso</span>' +
+                  '</div>' +
+                  '<div class="fw-bold" style="font-size:1.1rem;color:#58a6ff">' + fmtN(m.tokens) + '</div>' +
+                  '<div style="font-size:.75rem;color:#e6edf3">tokens · <span style="color:#f0883e">$' + fmtC(m.cost_usd) + '</span>' +
+                  ' <span class="text-muted">≈ R$' + fmtBrl(m.cost_usd) + '</span></div>' +
+                '</div>' +
+                '<div class="mb-2 p-2 rounded" style="background:#0d1117;border:1px solid #30363d">' +
+                  '<div class="text-muted mb-1" style="font-size:.72rem">TOTAL ACUMULADO</div>' +
+                  '<div class="d-flex justify-content-between" style="font-size:.8rem"><span>Requisições</span><span class="fw-semibold">' + fmtN(t.requests) + '</span></div>' +
+                  '<div class="d-flex justify-content-between" style="font-size:.8rem"><span>Tokens totais</span><span class="fw-semibold">' + fmtN(t.total_tokens) + '</span></div>' +
+                  '<div class="d-flex justify-content-between" style="font-size:.8rem"><span>Custo estimado</span><span class="fw-semibold" style="color:#f0883e">$' + fmtC(t.cost_usd) + '</span></div>' +
+                  '<div class="d-flex justify-content-between" style="font-size:.8rem"><span>Em R$ (×5.7)</span><span class="fw-semibold" style="color:#3fb950">R$' + fmtBrl(t.cost_usd) + '</span></div>' +
+                '</div>' +
+                (diasRows ? '<div class="p-2 rounded" style="background:#0d1117;border:1px solid #30363d"><div class="text-muted mb-1" style="font-size:.72rem">ÚLTIMOS 5 DIAS</div><table class="w-100"><tbody>' + diasRows + '</tbody></table></div>' : '') +
+                '<div class="text-muted mt-2 text-end" style="font-size:.68rem">Preços gpt-4o-mini: $0.15/1M in · $0.60/1M out<br>' +
+                '<a href="https://platform.openai.com/usage" target="_blank" style="color:#58a6ff;font-size:.68rem">Ver dashboard OpenAI ↗</a></div>';
+        } catch(e) {
+            card.innerHTML = '<p class="text-danger" style="font-size:.8rem">Erro de conexão</p>';
+        }
+    }
+
+    function refreshUsage() {
+        document.getElementById('openaiUsageCard').innerHTML =
+            '<div class="text-center text-muted" style="font-size:.8rem"><i class="fas fa-spinner fa-spin me-1"></i>Atualizando...</div>';
+        loadOpenAIUsage();
+    }
+
+    /* ── Ações Rápidas ───────────────────────────────────── */
+    function showMsg(text, isError) {
+        const el = document.getElementById('quickActionMsg');
+        el.style.display = 'block';
+        el.style.color = isError ? '#f85149' : '#3fb950';
+        el.textContent = text;
+        setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    async function quickAction(type) {
+        const url = type === 'cache' ? '/admin/clear-cache' : '/admin/restart-service';
+        const btn = type === 'cache' ? document.getElementById('btnLimparCache') : document.getElementById('btnReiniciar');
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Aguarde...';
+        try {
+            const r = await fetch(url, { method: 'POST' });
+            const d = await r.json();
+            showMsg(d.message || 'Concluído.', d.status !== 'success');
+        } catch(e) {
+            showMsg('Erro de conexão.', true);
+        }
+        btn.disabled = false;
+        btn.innerHTML = orig;
+    }
+
+    function confirmarLimparConversas() {
+        const modal = new bootstrap.Modal(document.getElementById('modalLimparConversas'));
+        modal.show();
+    }
+
+    async function executarLimparConversas() {
+        const btn = document.querySelector('#modalLimparConversas .btn-danger');
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Apagando...';
+        try {
+            const r = await fetch('/admin/clear-all-conversations', { method: 'POST' });
+            const d = await r.json();
+            bootstrap.Modal.getInstance(document.getElementById('modalLimparConversas')).hide();
+            showMsg(d.message || 'Concluído.', d.status !== 'success');
+            if (d.status === 'success') {
+                setTimeout(() => { window.location.href = '/admin/'; }, 1500);
+            }
+        } catch(e) {
+            showMsg('Erro de conexão.', true);
+        }
+        btn.disabled = false;
+        btn.innerHTML = orig;
+    }
 </script>
 {% endblock %}
